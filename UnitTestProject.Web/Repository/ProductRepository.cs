@@ -18,7 +18,7 @@ namespace UnitTestProject.Web.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task Delete(int id)
+        public async Task Delete(int? id)
         {
             var product = await _dbContext.Products.FindAsync(id);
             if (product != null)
@@ -38,15 +38,9 @@ namespace UnitTestProject.Web.Repository
             return products;
         }
 
-        public async Task<Product> GetById(int id)
+        public async Task<Product> GetById(int? id)
         {
-            var product = await _dbContext.Products
-              .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return new Product();
-            }
-            return product;
+            return await _dbContext.Products.FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task Update(Product product)

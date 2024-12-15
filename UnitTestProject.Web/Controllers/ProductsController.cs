@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Core.Types;
 using UnitTestProject.Web.Models;
 using UnitTestProject.Web.Repository;
 
@@ -20,18 +21,22 @@ namespace UnitTestProject.Web.Controllers
         }
 
         // GET: Products/Details/5
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
+                return RedirectToAction(nameof(Index));
+            }
+            var product = await _productRepository.GetById(id);
+            if (product == null || product.Id == 0)
+            {
                 return NotFound();
             }
-
-            return View(await _productRepository.GetById(id));
+            return View(product);
         }
 
         // GET: Products/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             return View();
         }
@@ -52,14 +57,14 @@ namespace UnitTestProject.Web.Controllers
         }
 
         // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
             var product = await _productRepository.GetById(id);
-            if (product == null)
+            if (product == null || product.Id == 0)
             {
                 return NotFound();
             }
@@ -86,7 +91,8 @@ namespace UnitTestProject.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (await _productRepository.GetById(id) == null)
+                    var _product = await _productRepository.GetById(id);
+                    if (_product == null || _product.Id == 0)
                     {
                         return NotFound();
                     }
@@ -101,14 +107,14 @@ namespace UnitTestProject.Web.Controllers
         }
 
         // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
             var product = await _productRepository.GetById(id);
-            if (product == null)
+            if (product == null || product.Id == 0)
             {
                 return NotFound();
             }
@@ -118,7 +124,7 @@ namespace UnitTestProject.Web.Controllers
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? id)
         {
             await _productRepository.Delete(id);
             return RedirectToAction(nameof(Index));
